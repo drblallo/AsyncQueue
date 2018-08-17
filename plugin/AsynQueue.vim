@@ -28,6 +28,17 @@ function! AppendRunAndOpenOnFailure(command)
 	call add(g:commanQueue, "call s:openOnFailure()")
 endfunction
 
+function! AppendOpenErrorFileIfExist()
+	call add(g:commanQueue, "call s:openErrorFileIfExists()")
+endfunction
+
+function! s:openErrorFileIfExists()
+	let s:file = g:lastFile . ".err"
+	if !empty(glob(s:file)) && !match(readfile(s:file), '\s*')
+		execute "sp " . s:file
+	endif
+endfunction
+
 function! AppendRunOnSuccessInternal(command)
 	call AppendInternal("call s:runOnSuccessInternal(\"".a:command."\")")	
 endfunction
@@ -125,7 +136,7 @@ function! RunBackgroundCommand(command,...)
     " will not actually get hit if we write err out to the same file. Not sure if I'm doing this wrong or?
 	let g:currentExecuting = a:arg2
     let g:backgroundCommandOutput = tempname()
-    call job_start(a:command, {'exit_cb': 'BackgroundCommandClose', 'out_io': 'file', 'err_io': 'file', 'err_name':g:backgroundCommandOutput, 'out_name': g:backgroundCommandOutput})
+    call job_start(a:command, {'exit_cb': 'BackgroundCommandClose', 'out_io': 'file', 'err_io': 'file', 'err_name':g:backgroundCommandOutput . ".err" , 'out_name': g:backgroundCommandOutput})
   endif
 endfunction
 
