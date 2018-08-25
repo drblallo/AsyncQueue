@@ -43,12 +43,22 @@ function! AppendRunOnSuccessInternal(command)
 	call AppendInternal("call s:runOnSuccessInternal(\"".a:command."\")")	
 endfunction
 
+function! AppendRunOnFailureInternal(command)
+	call AppendInternal("call s:runOnFailureInternal(\"".a:command."\")")
+endfunction
+
 function! AppendRunOnSuccessExternal(command, ...)
 	  let a:arg2 = get(a:, 1, "appendRUnOnSuccessNone")
 	  if (a:arg2 == "appendRUnOnSuccessNone")
 		call AppendInternal("call s:runOnSuccessExternal(\"".a:command."\")")	
 	else
 		call AppendInternal("call s:runOnSuccessExternal(\"".a:command."\", \"".a:arg2."\")")	
+	endif
+endfunction
+
+function! s:runOnFailureInternal(command)
+	if (g:lastExitCode != 0)
+		execute a:command	
 	endif
 endfunction
 
