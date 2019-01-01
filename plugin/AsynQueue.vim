@@ -125,7 +125,9 @@ function! BackgroundCommandClose(job, exitStatus)
   let g:lastFile = g:backgroundCommandOutput
   let g:lastExitCode = a:exitStatus
   let g:lastExecuted = g:currentExecuting
-  echo g:lastExitCode
+  if (g:lastExitCode != 0)
+	  echo "[FAIL]".g:lastExecuted
+  endif
   unlet g:backgroundCommandOutput
 endfunction
 
@@ -141,7 +143,7 @@ function! RunBackgroundCommand(command,...)
   if exists('g:backgroundCommandOutput')
     echo 'Already running task in background'
   else
-    echo 'Running task in background'
+    echo a:command
     " Notice that we're only capturing out, and not err here. This is because, for some reason, the callback
     " will not actually get hit if we write err out to the same file. Not sure if I'm doing this wrong or?
 	let g:currentExecuting = a:arg2
