@@ -125,15 +125,19 @@ function! BackgroundCommandClose(job, exitStatus)
   let g:lastFile = g:backgroundCommandOutput
   let g:lastExitCode = a:exitStatus
   let g:lastExecuted = g:currentExecuting
-  if (g:lastExitCode != 0)
-	  echo "[FAIL]".g:lastExecuted
-  endif
   unlet g:backgroundCommandOutput
+	
+  if (g:lastExitCode != 0)
+	  echo "[FAIL] ".g:lastCommand
+  else
+	  echo "[SUCCESS] ".g:lastCommand
+  endif
 endfunction
 
 function! RunBackgroundCommand(command,...)
 
   let a:arg2 = get(a:, 1, "none")
+
   " Make sure we're running VIM version 8 or higher.
   if v:version < 800
     echoerr 'RunBackgroundCommand requires VIM version 8 or higher'
@@ -143,10 +147,11 @@ function! RunBackgroundCommand(command,...)
   if exists('g:backgroundCommandOutput')
     echo 'Already running task in background'
   else
-    echo a:command
+    echo "[RUNNING] ".a:command
     " Notice that we're only capturing out, and not err here. This is because, for some reason, the callback
     " will not actually get hit if we write err out to the same file. Not sure if I'm doing this wrong or?
 	let g:currentExecuting = a:arg2
+	let g:lastCommand = a:command
     let g:backgroundCommandOutput = tempname()
     call job_start(a:command, {'exit_cb': 'BackgroundCommandClose', 'out_io': 'file', 'err_io': 'file', 'err_name':g:backgroundCommandOutput . ".err" , 'out_name': g:backgroundCommandOutput})
   endif
