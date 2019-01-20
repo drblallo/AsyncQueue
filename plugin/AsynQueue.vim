@@ -1,10 +1,10 @@
 
-let s:index = 1
+let s:index = 0
 let s:timer = timer_start(200, 'RunNext', {'repeat': -1})
 let g:commandQueue = []
 let s:compleatedList = []
 
-function! Clean()
+function! AQClean()
 	let s:compleatedList = []
 	let g:commandQueue = []
 	let s:index = 0
@@ -52,10 +52,11 @@ function! s:getErrFileName(cmd)
 	return a:cmd.execData.outFile . ".err"
 endfunction
 
-function! s:newCondition(runOnSuccess, runOnFailure, targetIndex)
+function! s:newCondition(targetIndex, runOnSuccess, runOnFailure, runOnAborted)
 	let l:toReturn = {}
 	let l:toReturn.runOnSuccess = a:runOnSuccess
 	let l:toReturn.runOnFailure = a:runOnFailure
+	let l:toReturn.runOnAborted = a:runOnAborted
 	let l:toReturn.targetIndex = a:targetIndex
 	return l:toReturn
 endfunction
@@ -65,7 +66,7 @@ function! s:newCommand(cmd, ...)
 	let l:toReturn.command = a:cmd
 	let l:toReturn.index = s:index
 	let s:index = s:index + 1
-	let l:toReturn.launchCondition = get(a:, 1, s:newCondition(0, 0, -1))
+	let l:toReturn.launchCondition = get(a:, 1, s:newCondition(-1, 0, 0, 0))
 	let l:toReturn.successfull = -1
 	let l:toReturn.external = 0
 
@@ -82,7 +83,7 @@ function! s:isExternal(cmd)
 	return (a:cmd.external)
 endfunction
 
-function! GetTerminated(index)
+function! s:getTerminated(index)
 	for cmd in s:compleatedList
 		if (cmd.index == a:index)
 			return cmd
@@ -91,20 +92,29 @@ function! GetTerminated(index)
 	return 0
 endfunction
 
-function! WasSuccessfull(index)
-	let l:cmd = GetTerminated(a:index)
+function! AQWasSuccessfull(index)
+	let l:cmd = s:getTerminated(a:index)
 
 	return (l:cmd.successfull == 1)
 endfunction
 
+function! AQWasCompleated(index)
+	return (s:getTerminated(a:index).successfull != -2)
+endfunction
+
 function! s:canBeExecuted(command)
 	let l:launchCondition = a:command.launchCondition
+	let l:target = l:launchCondition.targetIndex
 
-	if (l:launchCondition.runOnSuccess == 1 && WasSuccessfull(l:launchCondition.targetIndex))
+	if (l:launchCondition.runOnSuccess == 1 && !AQWasSuccessfull(l:target))
 		return 0
 	endif
 
-	if (l:launchCondition.runOnFailure == 1 && !WasSuccessfull(l:launchCondition.targetIndex))
+	if (l:launchCondition.runOnFailure == 1 && AQWasSuccessfull(l:target))
+		return 0
+	endif
+
+	if (l:launchCondition.runOnAborted == AQWasCompleated(l:target))
 		return 0
 	endif
 	
@@ -126,7 +136,7 @@ function! s:executeCommand(cmd)
 		exec a:cmd.command
 		call s:addToCompleated(a:cmd, 1)
 	else
-		call RunBackgroundCommand(a:cmd)	
+		call s:runBackgroundCommand(a:cmd)	
 	endif
 endfunction
 
@@ -139,52 +149,60 @@ function! RunNext(timer)
 	endif
 endfunction
 
-function! Append(command, ...)
+function! AQAppend(command, ...)
+	return AQAppendCond(a:command, 1, 0)
+endfunction
+
+function! AQAppendAbort(command, target)
+	let l:c = s:newCommand(a:command, newCondition(a:target, 0, 0, 1))
+	call add(g:commandQueue, l:cmd)
+	return l:cmd.index
+endfunction
+
+function! AQAppendCond(command, ...)
 	let l:outcomeExpected = get(a:, 1, -1)
 	let l:targetIndex = get(a:, 2, s:index - 1)
-	let l:c = s:newCondition(l:outcomeExpected, 1 - l:outcomeExpected, l:targetIndex)
+	let l:c = s:newCondition(l:targetIndex, l:outcomeExpected, 1 - l:outcomeExpected, 0)
 	let l:cmd = s:newCommand(a:command, l:c)
 	call add(g:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
 
-function! AppendOpen(...)
+function! AQAppendOpen(...)
 	let l:outcomeExpected = get(a:, 1, -1)
 	let l:targetIndex = get(a:, 2, s:index - 1)
-	let l:c = s:newCondition(l:outcomeExpected, 1 - l:outcomeExpected, l:targetIndex)
+	let l:c = s:newCondition(l:targetIndex, l:outcomeExpected, 1 - l:outcomeExpected, 0)
 	let l:cmd = s:newCommand("call s:openTarget(" . l:targetIndex . ")", l:c)
 	call add(g:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
 
-function! AppendRunAndOpenOnFailure(command)
-	let l:index = Append(command)
-	call AppendOpen(0, l:index)
+function! AQAppendRunAndOpenOnFailure(command)
+	let l:index = AQAppend(a:command)
+	call AQAppendOpen(0, l:index)
 	return l:index
 endfunction
 
-function! AppendOpenErrorFileIfExist(...)
+function! AQAppendOpenErrorFileIfExist(...)
 	let l:target = get(a:, 1, s:index - 1)
-	return AppendCommand("call s:openErrorFileIfExists(".l:target.")")
+	return AQAppend("call s:openErrorFileIfExists(".l:target.")")
 endfunction
 
 function! s:openErrorFileIfExists(target)
-	let s:file = getErrFileName(GetTerminated(l:target))
+	let s:file = s:getErrFileName(s:getTerminated(a:target))
 	if !empty(glob(s:file)) && !match(readfile(s:file), '\s*')
-		vsp
-		execute "view " . s:file
+		execute "vsp " . s:file
 	endif
 endfunction
 
 function! s:openTarget(targetIndex)
-	let l:cmd = GetTerminated(a:targetIndex)
-	vsp 
-	exec "view " . l:cmd.execData.outFile
+	let l:cmd = s:getTerminated(a:targetIndex)
+	exec "vsp " . l:cmd.execData.outFile
 endfunction
 
 
 " This callback will be executed when the entire command is completed
-function! BackgroundCommandClose(job, exitStatus)
+function! OnCompletion(job, exitStatus)
   let l:lastCommand = g:cmd
   let l:lastCommand.execData.outCode = a:exitStatus
   unlet g:cmd
@@ -199,10 +217,10 @@ function! BackgroundCommandClose(job, exitStatus)
   endif
 endfunction
 
-function! RunBackgroundCommand(command)
+function! s:runBackgroundCommand(command)
   " Make sure we're running VIM version 8 or higher.
 	if v:version < 800
-		echoerr 'RunBackgroundCommand requires VIM version 8 or higher'
+		echoerr 's:runBackgroundCommand requires VIM version 8 or higher'
 		return
 	endif
 
@@ -215,11 +233,11 @@ function! RunBackgroundCommand(command)
 		let g:cmd = a:command
 		let s:errFile = s:getErrFileName(g:cmd)
 		let s:outFile = g:cmd.execData.outFile
-		let g:job = job_start(a:command.command, {'exit_cb': 'BackgroundCommandClose', 'out_io': 'file', 'err_io': 'file', 'err_name':s:errFile , 'out_name': s:outFile})
+		let g:job = job_start(a:command.command, {'exit_cb': 'OnCompletion', 'out_io': 'file', 'err_io': 'file', 'err_name':s:errFile , 'out_name': s:outFile})
 	endif
 endfunction
 
-function! KillJob()
+function! AQKillJob()
 	if (!exists('g:job'))
 		echoerr "No pending job"		
 		return
@@ -227,7 +245,7 @@ function! KillJob()
 	call job_kill(g:job, "kill")
 endfunction
 
-function! StopJob()
+function! AQTermJob()
 	if (!exists('g:job'))
 		echoerr "No pending job"		
 		return
@@ -235,7 +253,16 @@ function! StopJob()
 	call job_kill(g:job)
 endfunction
 
-function! ShowHistory()
+function s:appendCommand(buffer, cmd, extensive)
+	if (!a:extensive)
+		call appendbufline(a:buffer, line('$'), s:toString(a:cmd))	
+	else
+		call appendbufline(a:buffer, line('$'), string(a:cmd))
+	endif
+endfunction
+
+function! s:showHistory(...)
+	let l:all = get(a:, 1, 0)
 
 	let l:buffer_number = bufnr('Async History')
 	if (l:buffer_number != -1)
@@ -248,15 +275,15 @@ function! ShowHistory()
 
 
 	for cmd in s:compleatedList[1:len(s:compleatedList)]
-		call appendbufline(l:buffer_number, line('$'), s:toString(cmd))
+		call s:appendCommand(l:buffer_number, cmd, l:all)
 	endfor
 
 	if (exists('g:cmd'))
-		call appendbufile(l:buffer_number, line('$'), s:toString(g:cmd))
+		call s:appendCommand(l:buffer_number, g:cmd, l:all)
 	endif
 
 	for cmd in g:commandQueue
-		call appendbufline(l:buffer_number, line('$'), s:toString(cmd))
+		call s:appendCommand(l:buffer_number, cmd, l:all)
 	endfor
 
 	call deletebufline(l:buffer_number, 1)
@@ -266,4 +293,9 @@ function! ShowHistory()
 	call AsyncHistoryReloadHighlight()
 endfunction
 
-call Clean()
+command! -nargs=0 AQHistory call s:showHistory(0)
+command! -nargs=0 AQInternalHistory call s:showHistory(1)
+command! -nargs=0 AQClean call AQClean()
+command! -nargs=0 AQKill call AQKillJob()
+
+call AQClean()
