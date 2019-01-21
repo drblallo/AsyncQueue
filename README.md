@@ -1,6 +1,6 @@
 # Async Queue
 
-Collection of utilites used to simplify Vim external operations.
+Collection of utilities used to simplify Vim external operations.
 This is written in pure vimscript, so it should work on windows as well, but no tests were conducted.
 Requires Vim 8 compiled with jobs.
 
