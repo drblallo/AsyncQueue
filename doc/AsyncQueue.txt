@@ -24,6 +24,8 @@ CONTENTS                                                    *AsynQueueContent*
     4.2.AQInternalHistory.................................|AQInternalHistoryCmd|
     4.3.AQClean...........................................|AQCleanCmd|
     4.4.AQKill............................................|AQKillCmd|
+    4.5.AQOpen............................................|AQOpenCmd|
+    4.6.AQOpenError.......................................|AQOpenErrorCmd|
   5.Options...............................................|AQOptions|
     5.1.Highligts.........................................|AQHighlights|
   6.About.................................................|AQAbout|
@@ -187,6 +189,19 @@ CONTENTS                                                    *AsynQueueContent*
 4.3 AQClean                                                       *AQCleanCmd*
 
   Equivalent to call |AQClean|()
+
+------------------------------------------------------------------------------
+
+4.5.AQOpen                                                         *AQOpenCmd*
+
+	Can only be used from the AQ History window, it will open the stdout
+	file of the command in the line where the cursor currently is.
+
+------------------------------------------------------------------------------
+
+4.6.AQOpenError                                               *AQOpenErrorCmd*
+
+	Like |AQOpenCmd| except it opens the stderr file instead.
 
 ==============================================================================
 5. Options                                                         *AQOptions*

@@ -34,10 +34,6 @@ function! s:toString(command)
 		let l:toReturn = "[ABORTED] " . l:toReturn
 	endif
 
-	if (a:command.external)
-		let l:toReturn = [l:toReturn, "\tstdout: " . a:command.execData.outFile,  "\tstderr: " . s:getErrFileName(a:command)]
-	endif
-		
 	return l:toReturn
 
 endfunction
@@ -300,9 +296,38 @@ function! s:showHistory(...)
 	call AsyncHistoryReloadHighlight()
 endfunction
 
+function! s:openErrorCommand()
+	if (bufnr("%") != bufnr('Async History'))
+		echoerr "You cannot do this outside of the AQ History Buffer"
+		return
+	endif
+
+	if (!s:isExternal(s:getTerminated(line("."))))
+		echoerr "You cannot open internal commands"
+	endif
+	
+	call s:openErrorFile(line("."))	
+	
+endfunction
+
+function! s:openCommand()
+	if (bufnr("%") != bufnr('Async History'))
+		echoerr "You cannot do this outside of the AQ History Buffer"
+		return
+	endif
+
+	if (!s:isExternal(s:getTerminated(line("."))))
+		echoerr "You cannot open internal commands"
+	endif
+
+	call s:openTarget(line("."))	
+endfunction
+
 command! -nargs=0 AQHistory call s:showHistory(0)
 command! -nargs=0 AQInternalHistory call s:showHistory(1)
 command! -nargs=0 AQClean call AQClean()
 command! -nargs=0 AQKill call AQKillJob()
+command! -nargs=0 AQOpenError call s:openErrorCommand()
+command! -nargs=0 AQOpen call s:openCommand()
 
 call AQClean()
