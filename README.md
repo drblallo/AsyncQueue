@@ -35,24 +35,38 @@ Now you just use "call MakeAndTest()" can assign a command, or a short cut to th
 ## Usefull Commands
 All commands description can be visited by invoking `:help AQCommands`
 
-	* `AQHistory` shows you the history of background tasks.
-	* `AQKill` kills the current pending background task.
-	* `AQClean` clears the history
-	* `AQOpen` open the stdout of the compleated background task under the cursor
-	* `AQOpenError` open the stderr of the compleated background task under the cursor
+	* AQHistory shows you the history of background tasks.
+	* AQKill kills the current pending background task.
+	* AQClean clears the history
+	* AQOpen open the stdout of the compleated background task under the cursor
+	* AQOpenError open the stderr of the compleated background task under the cursor
 
 ## Usefull Functions
 All commands description can be visited by invoking `:help AQFunctions`
 
-	* `AQAppend(<command>)` 
+```vim
+AQAppend(<command>)
+```
 Executes the provided command, if it starts with "!" then it will be executed as a terminal command. Otherwise it will be executed internally after all the other ones have been compleated.
-	* `AQAppendOpen([<cond>], [<target>])` 
+
+```vim
+AQAppendOpen([<cond>], [<target>])
+```
 If target was not provided then the command before this will be used as target. If no cond was provided then this will open the stdout file if target was not aborted. If cond was 1 then the file will be open only if target was succesfull. If cond was 0 then the file will be open only if the target was not succesfull and not aborted.
-	* `AQAppendOpenErrorFile([<cond>], [<target>])` 
+
+```vim
+AQAppendOpenErrorFile([<cond>], [<target>])
+```
 if target was not provided then the command before this will be used as target. If no cond was provided then this will open the stderr file if target was not aborted. If cond was 1 then the file will be open only if target was succesfull. If cond was 0 then the file will be open only if the target was not succesfull and not aborted.
-	* `AQAppendCond(<command>, [<cond>], [<target>])` 
+
+```vim
+AQAppendCond(<command>, [<cond>], [<target>])
+```
 if target was not provided then the command before this will be used as target. If no cond was provided then this will executed commadn if target was not aborted. If cond was 1 then the command will be executed only if target was succesfull. If cond was 0 then the command will be executed only if the target was not succesfull and not aborted.
-	* `AQAppendAbort(<command>,<target>)` 
+
+```vim
+AQAppendAbort(<command>,<target>)
+```
 Executes the command if target was aborted. 
 
 
