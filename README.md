@@ -11,7 +11,7 @@ It often happens that you end up having a sequence of operations that must be pe
 As an example you may need to call make on the current directory, and then, if it the target has been built, call ./build/bin/test. If make failed you wish to see its output, otherwise you only want to see the one created by the tests.
 
 A solution would be to write an external script and then manually open the output, but this is annoying. Another one is to write a script in pure vimscript but this prevents Vim to operate until make has compleated his task, and it could take a while.
-With Async Queue you can solve the problem in a few line. Just define a function as follow
+With Async Queue you can solve the problem in just a few lines. Define a function as follow
 
 ```vim
 function! MakeAndTest()
@@ -30,16 +30,35 @@ function! MakeAndTest()
 endfunction
 ```
 
-Now you just use "call MakeAndTest()" can assign a command, or a short cut to that function to launch the operations in the background.
+Now you just use "call MakeAndTest()", or you can assign a command, or a short cut to that function to launch the operations in the background.
 
 ## Usefull Commands
 All commands description can be visited by invoking `:help AQCommands`
 
-	* AQHistory shows you the history of background tasks.
-	* AQKill kills the current pending background task.
-	* AQClean clears the history
-	* AQOpen open the stdout of the compleated background task under the cursor
-	* AQOpenError open the stderr of the compleated background task under the cursor
+```vim
+AQHistory 
+```
+Shows you the history of background tasks.
+
+```vim
+AQKill 
+```
+Kills the current pending background task.
+
+```vim
+AQClean 
+```
+Clears the history
+
+```vim
+AQOpen 
+```
+Opens the stdout of the compleated background task under the cursor
+
+```vim
+AQOpenError
+```
+Open the stderr of the compleated background task under the cursor
 
 ## Usefull Functions
 All commands description can be visited by invoking `:help AQFunctions`
