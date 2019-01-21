@@ -4,6 +4,8 @@ Collection of utilities used to simplify Vim external operations.
 This is written in pure vimscript, so it should work on windows as well, but no tests were conducted.
 Requires Vim 8 compiled with jobs.
 
+![](image.png)
+
 ## Example
 
 It often happens that you end up having a sequence of operations that must be performed one after the other only if each of the previous has succeded, and if any of those fails a buffer with the error must be open.
