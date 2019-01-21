@@ -98,6 +98,10 @@ function! AQWasSuccessfull(index)
 	return (l:cmd.successfull == 1)
 endfunction
 
+function! AQGetExecutedSize()
+	return len(s:compleatedList)
+endfunction
+
 function! AQWasCompleated(index)
 	return (s:getTerminated(a:index).successfull != -2)
 endfunction
@@ -114,7 +118,7 @@ function! s:canBeExecuted(command)
 		return 0
 	endif
 
-	if (l:launchCondition.runOnAborted == AQWasCompleated(l:target))
+	if (!l:launchCondition.runOnAborted == !AQWasCompleated(l:target))
 		return 0
 	endif
 	
@@ -149,12 +153,12 @@ function! RunNext(timer)
 	endif
 endfunction
 
-function! AQAppend(command, ...)
+function! AQAppend(command)
 	return AQAppendCond(a:command, 1, 0)
 endfunction
 
 function! AQAppendAbort(command, target)
-	let l:c = s:newCommand(a:command, newCondition(a:target, 0, 0, 1))
+	let l:cmd = s:newCommand(a:command, s:newCondition(a:target, 0, 0, 1))
 	call add(g:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
@@ -183,16 +187,19 @@ function! AQAppendRunAndOpenOnFailure(command)
 	return l:index
 endfunction
 
-function! AQAppendOpenErrorFileIfExist(...)
+function! AQAppendOpenErrorFile(...)
 	let l:target = get(a:, 1, s:index - 1)
-	return AQAppend("call s:openErrorFileIfExists(".l:target.")")
+	let l:outcomeExpected = get(a:, 1, -1)
+	let l:targetIndex = get(a:, 2, s:index - 1)
+	let l:c = s:newCondition(l:targetIndex, l:outcomeExpected, 1 - l:outcomeExpected, 0)
+	let l:cmd = s:newCommand("call s:openErrorFile(".l:target.")", l:c)
+	call add(g:commandQueue, l:cmd)
+	return l:cmd.index
 endfunction
 
-function! s:openErrorFileIfExists(target)
+function! s:openErrorFile(target)
 	let s:file = s:getErrFileName(s:getTerminated(a:target))
-	if !empty(glob(s:file)) && !match(readfile(s:file), '\s*')
-		execute "vsp " . s:file
-	endif
+	execute "vsp " . s:file
 endfunction
 
 function! s:openTarget(targetIndex)
@@ -242,7 +249,7 @@ function! AQKillJob()
 		echoerr "No pending job"		
 		return
 	endif
-	call job_kill(g:job, "kill")
+	call job_stop(g:job, "kill")
 endfunction
 
 function! AQTermJob()
@@ -250,10 +257,10 @@ function! AQTermJob()
 		echoerr "No pending job"		
 		return
 	endif
-	call job_kill(g:job)
+	call job_stop(g:job)
 endfunction
 
-function s:appendCommand(buffer, cmd, extensive)
+function! s:appendCommand(buffer, cmd, extensive)
 	if (!a:extensive)
 		call appendbufline(a:buffer, line('$'), s:toString(a:cmd))	
 	else

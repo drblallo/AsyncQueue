@@ -1,0 +1,214 @@
+*AsynQueue.txt*                                         Requires Vim version 8
+
+                            AsynQueue  Help
+
+==============================================================================
+CONTENTS                                                    *AsynQueueContent*
+
+  1.Intro.................................................|AQIntro|
+  2.Installation..........................................|AQInstallation|
+  3.Functions.............................................|AQFunctions|
+    3.1.AQAppend..........................................|AQAppend|
+    3.2.AQAppendCond......................................|AQAppendCond|
+    3.4.AQAppendOpen......................................|AQAppendOpen|
+    3.5.AQAppendRunAndOpenOnFailure.......................|AQAppendRunAndOpenOnFailure|	
+    3.6.AQAppendOpenErrorFile.............................|AQAppendOpenErrorFile|
+    3.7.AQTermJob.........................................|AQTermJob|
+    3.8.AQKillJob.........................................|AQKillJob|
+    3.9.AQClean...........................................|AQClean|
+    3.10.AQWasCompleated..................................|AQWasCompleated|
+    3.11.AQWasSuccesfull..................................|AQWasSuccesfull|
+    3.12.AQGetExecutedSize................................|AQGetExectudedSize|
+  4.Commands..............................................|AQCommands|
+    4.1.AQHistory.......................................  |AQHistoryCmd|
+    4.2.AQInternalHistory.................................|AQInternalHistoryCmd|
+    4.3.AQClean...........................................|AQCleanCmd|
+    4.4.AQKill............................................|AQKillCmd|
+  5.Options...............................................|AQOptions|
+    5.1.Highligts.........................................|AQHighlights|
+  6.About.................................................|AQAbout|
+
+==============================================================================
+1. Intro                                                             *AQIntro*
+
+  AsynQueue provides a set of pure vim script methods that allow to creates 
+  queues of interal and external operations to be executed asynchronously. 
+  The focus of this plugin is not about allowing to run multiple commands 
+  at the same time but it is about providing a way to select the flow of 
+  external operations without user supervision.
+
+
+==============================================================================
+2. Installation                                               *AQInstallation*
+
+  AsynQueue requires vim 8 or higher.
+  The easiest way to install is to use a plugin manager.
+
+
+==============================================================================
+3. Functions                                                     *AQFunctions*
+
+  The core idea behind the AsynQueue is to offer a single queue of 
+  operations that keeps track if every operation was a success, a failure 
+  or was aborted. Every operation is assinged a index and every operation
+  can be provided with a condition that will let it discriminate if it
+  has to be performed or not after every precedent action was terminated.
+  External operations will write use two temporary files as stdout and 
+  stderr and user will be able to open this files as soon as the 
+  operations are terminated.
+	
+
+------------------------------------------------------------------------------
+
+3.1 AQAppend(<command>)                                             *AQAppend*
+
+  Insert string <command> as a operation to be executed after every other 
+  operation issued before. Returns the id of the operation. If <command>
+  starts with '!' then it will be executed in the background, otherwise 
+  it will be executed as soon as every other operation was compleated.
+  
+  Note: Invoking this function is equivalent to invoke 
+  AQAppendCond(<command>, 1, 0)
+
+------------------------------------------------------------------------------
+
+3.2 AQAppendCond(<command>, [<condition>], [<target>])          *AQAppendCond*
+	
+  Behaves like |AQAppend|, with the following exceptions:
+  
+  <target> must be the index of a previous operation, if provided.
+  
+  <command> will be executed only if the previous command (or <target>
+  if provided) was not aborted.
+  
+  If <condition> is provided ad equal to 1 then <command> will be 
+  executed only if the previous command (or <target> if provided) 
+  was succefull.
+  
+  If <condition> is provided and equal to 0 then <command> will be 
+  executed only if the previous command (or <target> if provided) 
+  was a failure.
+	
+------------------------------------------------------------------------------
+
+3.4 AQAppendOpen([<cond>], [<target>])                          *AQAppendOpen*
+	
+  <target> must be the index of a previous operation, if provided.
+  Opens the stdout file of the last operation (or <target> if provided), if
+  such operation was not aborted.
+  
+  If <condition> is provided and equal to 1 then the stdout file will be
+  open only if the previous operation (or <target> if provided), was
+  succefull.
+  
+  If <condition> is provided and equal to 0 then the stdout file will be
+  open only if the previous operation (or <target> if provided), was
+  a failure.
+
+------------------------------------------------------------------------------
+
+3.5 AQAppendRunAndOpenOnFailure(<command>)       *AQAppendRunAndOpenOnFailure*
+	
+  Helper function that is equivalent to call 
+  AQAppendOpen(0, AQAppend(<commad>)).
+  It will open the stdout file of <command> if <command> will fail.
+  
+  Returns the index given to <command>, not the one given to AQAppendOpen
+
+------------------------------------------------------------------------------
+
+3.6 AQAppendOpenErrorFile([<cond>], [<target>])        *AQAppendOpenErrorFile*
+	
+  It is identical to |AQAppendOpen| with the exception that will try to open
+  the stderr file istead of the stdout one.
+
+------------------------------------------------------------------------------
+
+3.7 AQTermJob()                                                    *AQTermJob*
+	
+  Send a sigterm to the currently executed background task.
+
+------------------------------------------------------------------------------
+
+3.7 AQKillJob()                                                    *AQKillJob*
+	
+  Send a gitkill to the currently executed background task.
+
+------------------------------------------------------------------------------
+
+3.7 AQClean()                                                        *AQClean* 
+	
+  Clear the execution history, do not use will the command queue is not
+  empty.
+
+------------------------------------------------------------------------------
+
+3.10.AQWasCompleated(<target>)                                *AQWasCompleated*
+
+  Returns 1 if the <target> was compleated, 0 if it was aborted.
+
+------------------------------------------------------------------------------
+
+3.11.AQWasSuccesfull(<target>)                               *AQWasSuccesfull*
+
+  Returns 1 if <target> was compleated succefully, 0 otherwise.
+
+------------------------------------------------------------------------------
+
+3.12.AQGetExecutedSize()                                  *AQGetExectudedSize*
+
+  Returns the number of command not in the pending lists, aborted as well
+  None that the list include a hidden element that is the base one with index
+  0.
+
+==============================================================================
+4. Commands                                                       *AQCommands*
+
+------------------------------------------------------------------------------
+
+4.1 AQHistory                                                   *AQHistoryCmd*
+
+  Opens the history page.
+
+------------------------------------------------------------------------------
+
+4.2 AQInteralHistory                                    *AQInternalHistoryCmd*
+
+  Opens the full info history page, used for debugging purposes
+
+------------------------------------------------------------------------------
+
+4.3 AQKill                                                         *AQKillCmd*
+
+  Equivalent to call |AQKillJob|()
+
+------------------------------------------------------------------------------
+
+4.3 AQClean                                                       *AQCleanCmd*
+
+  Equivalent to call |AQClean|()
+
+==============================================================================
+5. Options                                                         *AQOptions*
+
+------------------------------------------------------------------------------
+
+5.1 Highlights                                                  *AQHighlights*
+
+  AsyncHistorySuccess:                                         default Green
+    Color used to highlight the [SUCCESS] tag in the history window.
+  
+  AsyncHistoryFailure:                                           default Red
+    Color used to highlight the [FAILURE] tag in the history window.
+
+  AsyncHistoryAborted:                                          default Blue
+    Color used to highlight the [ABORTED] tag in the history window.
+
+  AsyncHistoryAborted:                                        default Yellow 
+    Color used to highlight the [PENDING] tag in the history window.
+
+
+==============================================================================
+6. About                                                             *AQAbout*
+
+  You can find me at https://github.com/drblallo/AsyncQueue

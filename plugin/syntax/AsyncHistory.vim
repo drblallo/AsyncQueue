@@ -10,7 +10,7 @@ function AsyncHistoryReloadHighlight()
 	syn keyword AsyncHistorySuccess SUCCESS
 	syn keyword AsyncHistoryFailure FAILURE
 	syn keyword AsyncHistoryAborted ABORTED
-	syn keyword AsyncHistordPending PENDING
+	syn keyword AsyncHistoryPending PENDING
 endfunction
 
 
