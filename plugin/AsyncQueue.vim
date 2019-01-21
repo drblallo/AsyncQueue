@@ -177,13 +177,7 @@ function! AQAppendOpen(...)
 	return l:cmd.index
 endfunction
 
-function! AQAppendRunAndOpenOnFailure(command)
-	let l:index = AQAppend(a:command)
-	call AQAppendOpen(0, l:index)
-	return l:index
-endfunction
-
-function! AQAppendOpenErrorFile(...)
+function! AQAppendOpenError(...)
 	let l:target = get(a:, 1, s:index - 1)
 	let l:outcomeExpected = get(a:, 1, -1)
 	let l:targetIndex = get(a:, 2, s:index - 1)

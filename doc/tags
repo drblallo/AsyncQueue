@@ -1,9 +1,9 @@
 AQAbout	AsyncQueue.txt	/*AQAbout*
 AQAppend	AsyncQueue.txt	/*AQAppend*
+AQAppendAbort	AsyncQueue.txt	/*AQAppendAbort*
 AQAppendCond	AsyncQueue.txt	/*AQAppendCond*
 AQAppendOpen	AsyncQueue.txt	/*AQAppendOpen*
 AQAppendOpenErrorFile	AsyncQueue.txt	/*AQAppendOpenErrorFile*
-AQAppendRunAndOpenOnFailure	AsyncQueue.txt	/*AQAppendRunAndOpenOnFailure*
 AQClean	AsyncQueue.txt	/*AQClean*
 AQCleanCmd	AsyncQueue.txt	/*AQCleanCmd*
 AQCommands	AsyncQueue.txt	/*AQCommands*

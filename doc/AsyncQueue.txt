@@ -11,8 +11,8 @@ CONTENTS                                                    *AsynQueueContent*
     3.1.AQAppend..........................................|AQAppend|
     3.2.AQAppendCond......................................|AQAppendCond|
     3.4.AQAppendOpen......................................|AQAppendOpen|
-    3.5.AQAppendRunAndOpenOnFailure.......................|AQAppendRunAndOpenOnFailure|	
-    3.6.AQAppendOpenErrorFile.............................|AQAppendOpenErrorFile|
+    3.5.AQAppendAbort.....................................|AQAppendAbort|	
+    3.6.AQAppendOpenError.................................|AQAppendOpenError|
     3.7.AQTermJob.........................................|AQTermJob|
     3.8.AQKillJob.........................................|AQKillJob|
     3.9.AQClean...........................................|AQClean|
@@ -109,17 +109,13 @@ CONTENTS                                                    *AsynQueueContent*
 
 ------------------------------------------------------------------------------
 
-3.5 AQAppendRunAndOpenOnFailure(<command>)       *AQAppendRunAndOpenOnFailure*
+3.5 AQAppendAbort(<command>, <target>)                         *AQAppendAbort*
 	
-  Helper function that is equivalent to call 
-  AQAppendOpen(0, AQAppend(<commad>)).
-  It will open the stdout file of <command> if <command> will fail.
-  
-  Returns the index given to <command>, not the one given to AQAppendOpen
+  Executes <command> only if <target> was aborted.
 
 ------------------------------------------------------------------------------
 
-3.6 AQAppendOpenErrorFile([<cond>], [<target>])        *AQAppendOpenErrorFile*
+3.6 AQAppendOpenError([<cond>], [<target>])            *AQAppendOpenErrorFile*
 	
   It is identical to |AQAppendOpen| with the exception that will try to open
   the stderr file istead of the stdout one.
