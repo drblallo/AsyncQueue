@@ -16,6 +16,8 @@ AQInternalHistoryCmd	AsyncQueue.txt	/*AQInternalHistoryCmd*
 AQIntro	AsyncQueue.txt	/*AQIntro*
 AQKillCmd	AsyncQueue.txt	/*AQKillCmd*
 AQKillJob	AsyncQueue.txt	/*AQKillJob*
+AQOpenCmd	AsyncQueue.txt	/*AQOpenCmd*
+AQOpenErrorCmd	AsyncQueue.txt	/*AQOpenErrorCmd*
 AQOptions	AsyncQueue.txt	/*AQOptions*
 AQTermJob	AsyncQueue.txt	/*AQTermJob*
 AQWasCompleated	AsyncQueue.txt	/*AQWasCompleated*

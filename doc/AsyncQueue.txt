@@ -194,14 +194,14 @@ CONTENTS                                                    *AsynQueueContent*
 
 4.5.AQOpen                                                         *AQOpenCmd*
 
-	Can only be used from the AQ History window, it will open the stdout
-	file of the command in the line where the cursor currently is.
+  Can only be used from the AQ History window, it will open the stdout
+  file of the command in the line where the cursor currently is.
 
 ------------------------------------------------------------------------------
 
 4.6.AQOpenError                                               *AQOpenErrorCmd*
 
-	Like |AQOpenCmd| except it opens the stderr file instead.
+  Like |AQOpenCmd| except it opens the stderr file instead.
 
 ==============================================================================
 5. Options                                                         *AQOptions*
