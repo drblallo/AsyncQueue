@@ -45,15 +45,15 @@ All commands description can be visited by invoking `:help AQCommands`
 All commands description can be visited by invoking `:help AQFunctions`
 
 	* `AQAppend(<command>)` 
-	Executes the provided command, if it starts with "!" then it will be executed as a terminal command. Otherwise it will be executed internally after all the other ones have been compleated.
+Executes the provided command, if it starts with "!" then it will be executed as a terminal command. Otherwise it will be executed internally after all the other ones have been compleated.
 	* `AQAppendOpen([<cond>], [<target>])` 
-	if target was not provided then the command before this will be used as target. If no cond was provided then this will open the stdout file if target was not aborted. If cond was 1 then the file will be open only if target was succesfull. If cond was 0 then the file will be open only if the target was not succesfull and not aborted.
+If target was not provided then the command before this will be used as target. If no cond was provided then this will open the stdout file if target was not aborted. If cond was 1 then the file will be open only if target was succesfull. If cond was 0 then the file will be open only if the target was not succesfull and not aborted.
 	* `AQAppendOpenErrorFile([<cond>], [<target>])` 
-	if target was not provided then the command before this will be used as target. If no cond was provided then this will open the stderr file if target was not aborted. If cond was 1 then the file will be open only if target was succesfull. If cond was 0 then the file will be open only if the target was not succesfull and not aborted.
+if target was not provided then the command before this will be used as target. If no cond was provided then this will open the stderr file if target was not aborted. If cond was 1 then the file will be open only if target was succesfull. If cond was 0 then the file will be open only if the target was not succesfull and not aborted.
 	* `AQAppendCond(<command>, [<cond>], [<target>])` 
-	if target was not provided then the command before this will be used as target. If no cond was provided then this will executed commadn if target was not aborted. If cond was 1 then the command will be executed only if target was succesfull. If cond was 0 then the command will be executed only if the target was not succesfull and not aborted.
+if target was not provided then the command before this will be used as target. If no cond was provided then this will executed commadn if target was not aborted. If cond was 1 then the command will be executed only if target was succesfull. If cond was 0 then the command will be executed only if the target was not succesfull and not aborted.
 	* `AQAppendAbort(<command>,<target>)` 
-	executes the command if target was aborted. 
+Executes the command if target was aborted. 
 
 
 ## Installation
