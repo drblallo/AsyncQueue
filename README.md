@@ -76,7 +76,7 @@ AQAppendOpen([<cond>], [<target>])
 If target was not provided then the command before this will be used as target. If no cond was provided then this will open the stdout file if target was not aborted. If cond was 1 then the file will be open only if target was succesfull. If cond was 0 then the file will be open only if the target was not succesfull and not aborted.
 
 ```vim
-AQAppendOpenErrorFile([<cond>], [<target>])
+AQAppendOpenError([<cond>], [<target>])
 ```
 if target was not provided then the command before this will be used as target. If no cond was provided then this will open the stderr file if target was not aborted. If cond was 1 then the file will be open only if target was succesfull. If cond was 0 then the file will be open only if the target was not succesfull and not aborted.
 
