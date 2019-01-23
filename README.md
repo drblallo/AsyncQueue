@@ -10,27 +10,28 @@ Requires Vim 8 compiled with jobs.
 
 It often happens that you end up having a sequence of operations that must be performed one after the other only if each of the previous has succeded, and if any of those fails a buffer with the error must be open.
 
-As an example you may need to call make on the current directory, and then, if it the target has been built, call ./build/bin/test. If make failed you wish to see its output, otherwise you only want to see the one created by the tests.
+As an example you may need to compile a file in the current directory, and then, if it the compilation was compleated, run the output. If the compilation failed you wish to see the produced error, otherwise you only want to see the output of the second execution.
 
 A solution would be to write an external script and then manually open the output, but this is annoying. Another one is to write a script in pure vimscript but this prevents Vim to operate until make has compleated his task, and it could take a while.
 With Async Queue you can solve the problem in just a few lines. Define a function as follow
 
 ```vim
-function! MakeAndTest()
+function! CompileAndRun()
 	"run make in the background
-	let l:index = AQAppend("!make")
+	let l:index = AQAppend("!g++ main.cpp -o output")
 
-	"open output file if the previous command has failed, abort otherwise
-	AQAppendOpen(0)	
+	"open error file if the previous command has failed, abort otherwise
+	call AQAppendOpenError(0, l:index)
 
 	"run tests if the first command has succeded, abort otherwise
-	AQAppendCond("!./build/bin/test", 1, l:index)
+	l:index = AQAppendCond("!./build/bin/test", 1, l:index)
 
 	"open output if previous operation was not aborted
-	AQAppendOpen()
-
+	call AQAppendOpen(1, l:index)
 endfunction
 ```
+Here is a video of the example.
+[![asciicast](https://asciinema.org/a/223014.svg)](https://asciinema.org/a/223014)
 
 Now you just use "call MakeAndTest()", or you can assign a command, or a short cut to that function to launch the operations in the background.
 

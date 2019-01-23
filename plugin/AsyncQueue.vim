@@ -178,11 +178,10 @@ function! AQAppendOpen(...)
 endfunction
 
 function! AQAppendOpenError(...)
-	let l:target = get(a:, 1, s:index - 1)
 	let l:outcomeExpected = get(a:, 1, -1)
 	let l:targetIndex = get(a:, 2, s:index - 1)
 	let l:c = s:newCondition(l:targetIndex, l:outcomeExpected, 1 - l:outcomeExpected, 0)
-	let l:cmd = s:newCommand("call s:openErrorFile(".l:target.")", l:c)
+	let l:cmd = s:newCommand("call s:openErrorFile(".l:targetIndex.")", l:c)
 	call add(g:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
