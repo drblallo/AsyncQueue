@@ -1,12 +1,18 @@
+" Make sure we're running VIM version 8 or higher.
+if (!has('job'))
+	echoerr 'AsyncQueue requires VIM version 8 or higher compiled with jobs'
+	finish
+endif
 
 let s:index = 0
 let s:timer = timer_start(200, 'RunNext', {'repeat': -1})
-let g:commandQueue = []
+let s:commandQueue = []
 let s:compleatedList = []
+
 
 function! AQClean()
 	let s:compleatedList = []
-	let g:commandQueue = []
+	let s:commandQueue = []
 	let s:index = 0
 	call add(s:compleatedList, s:newCommand("None"))
 	let s:compleatedList[0].successfull = 1
@@ -80,17 +86,19 @@ function! s:isExternal(cmd)
 endfunction
 
 function! s:getTerminated(index)
-	for cmd in s:compleatedList
-		if (cmd.index == a:index)
-			return cmd
-		endif
-	endfor
-	return 0
+	return get(s:compleatedList, a:index)
+endfunction
+
+function! s:isIndexValid(index)
+	return a:index >= 0 && a:index < AQGetExecutedSize()
 endfunction
 
 function! AQWasSuccessfull(index)
+	if (!s:isIndexValid(a:index))
+		echoerr "There is no terminated operation with such index"	
+		return 0
+	endif
 	let l:cmd = s:getTerminated(a:index)
-
 	return (l:cmd.successfull == 1)
 endfunction
 
@@ -99,6 +107,9 @@ function! AQGetExecutedSize()
 endfunction
 
 function! AQWasCompleated(index)
+	if (!s:isIndexValid(a:index))
+		return 0
+	endif
 	return (s:getTerminated(a:index).successfull != -2)
 endfunction
 
@@ -141,9 +152,9 @@ function! s:executeCommand(cmd)
 endfunction
 
 function! RunNext(timer)
-	if (len(g:commandQueue) != 0 && !exists('g:cmd'))
-		let s:command = g:commandQueue[0]
-		let g:commandQueue = g:commandQueue[1:len(g:commandQueue)]
+	if (len(s:commandQueue) != 0 && !exists('g:cmd'))
+		let s:command = s:commandQueue[0]
+		let s:commandQueue = s:commandQueue[1:len(s:commandQueue)]
 
 		call s:executeCommand(s:command)
 	endif
@@ -155,7 +166,7 @@ endfunction
 
 function! AQAppendAbort(command, target)
 	let l:cmd = s:newCommand(a:command, s:newCondition(a:target, 0, 0, 1))
-	call add(g:commandQueue, l:cmd)
+	call add(s:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
 
@@ -164,7 +175,7 @@ function! AQAppendCond(command, ...)
 	let l:targetIndex = get(a:, 2, s:index - 1)
 	let l:c = s:newCondition(l:targetIndex, l:outcomeExpected, 1 - l:outcomeExpected, 0)
 	let l:cmd = s:newCommand(a:command, l:c)
-	call add(g:commandQueue, l:cmd)
+	call add(s:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
 
@@ -173,7 +184,7 @@ function! AQAppendOpen(...)
 	let l:targetIndex = get(a:, 2, s:index - 1)
 	let l:c = s:newCondition(l:targetIndex, l:outcomeExpected, 1 - l:outcomeExpected, 0)
 	let l:cmd = s:newCommand("call s:openTarget(" . l:targetIndex . ")", l:c)
-	call add(g:commandQueue, l:cmd)
+	call add(s:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
 
@@ -182,7 +193,7 @@ function! AQAppendOpenError(...)
 	let l:targetIndex = get(a:, 2, s:index - 1)
 	let l:c = s:newCondition(l:targetIndex, l:outcomeExpected, 1 - l:outcomeExpected, 0)
 	let l:cmd = s:newCommand("call s:openErrorFile(".l:targetIndex.")", l:c)
-	call add(g:commandQueue, l:cmd)
+	call add(s:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
 
@@ -214,11 +225,6 @@ function! OnCompletion(job, exitStatus)
 endfunction
 
 function! s:runBackgroundCommand(command)
-  " Make sure we're running VIM version 8 or higher.
-	if v:version < 800
-		echoerr 's:runBackgroundCommand requires VIM version 8 or higher'
-		return
-	endif
 
 	if exists('g:cmd')
 		echo 'Already running task in background'
@@ -278,7 +284,7 @@ function! s:showHistory(...)
 		call s:appendCommand(l:buffer_number, g:cmd, l:all)
 	endif
 
-	for cmd in g:commandQueue
+	for cmd in s:commandQueue
 		call s:appendCommand(l:buffer_number, cmd, l:all)
 	endfor
 
