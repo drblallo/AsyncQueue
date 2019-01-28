@@ -26,6 +26,7 @@ CONTENTS                                                    *AsynQueueContent*
     4.4.AQKill............................................|AQKillCmd|
     4.5.AQOpen............................................|AQOpenCmd|
     4.6.AQOpenError.......................................|AQOpenErrorCmd|
+    4.6.AQRunAgain........................................|AQRunAgainCmd|
   5.Options...............................................|AQOptions|
     5.1.Highligts.........................................|AQHighlights|
   6.About.................................................|AQAbout|
@@ -198,6 +199,16 @@ CONTENTS                                                    *AsynQueueContent*
 4.6.AQOpenError                                               *AQOpenErrorCmd*
 
   Like |AQOpenCmd| except it opens the stderr file instead.
+
+------------------------------------------------------------------------------
+
+4.6.AQRunAgain                                                 *AQRunAgainCmd*
+
+  Run the command under the cursor again, can be used only from the 
+  AQHistory page. Cannot be used on commands that are still pending.
+  Can be used on failed and aborted commands. It equivalent to call
+  |AQAppend| with the command under the cursor. Conditions regarding
+  that command are ignored.
 
 ==============================================================================
 5. Options                                                         *AQOptions*

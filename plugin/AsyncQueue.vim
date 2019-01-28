@@ -19,10 +19,7 @@ function! AQClean()
 endfunction
 
 function! s:toString(command)
-	let l:toReturn = a:command.command
-	if (a:command.external)
-		let l:toReturn = "!" . l:toReturn 
-	endif
+	let l:toReturn = a:command.description
 
 	if (a:command.successfull == -1)
 		let l:toReturn = "[PENDING] " . l:toReturn
@@ -69,6 +66,7 @@ function! s:newCommand(cmd, ...)
 	let l:toReturn.index = s:index
 	let s:index = s:index + 1
 	let l:toReturn.launchCondition = get(a:, 1, s:newCondition(-1, 0, 0, 0))
+	let l:toReturn.description = get(a:, 2, a:cmd)
 	let l:toReturn.successfull = -1
 	let l:toReturn.external = 0
 
@@ -183,7 +181,7 @@ function! AQAppendOpen(...)
 	let l:outcomeExpected = get(a:, 1, -1)
 	let l:targetIndex = get(a:, 2, s:index - 1)
 	let l:c = s:newCondition(l:targetIndex, l:outcomeExpected, 1 - l:outcomeExpected, 0)
-	let l:cmd = s:newCommand("call s:openTarget(" . l:targetIndex . ")", l:c)
+	let l:cmd = s:newCommand("call s:openTarget(" . l:targetIndex . ")", l:c, "Open stdout")
 	call add(s:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
@@ -192,7 +190,7 @@ function! AQAppendOpenError(...)
 	let l:outcomeExpected = get(a:, 1, -1)
 	let l:targetIndex = get(a:, 2, s:index - 1)
 	let l:c = s:newCondition(l:targetIndex, l:outcomeExpected, 1 - l:outcomeExpected, 0)
-	let l:cmd = s:newCommand("call s:openErrorFile(".l:targetIndex.")", l:c)
+	let l:cmd = s:newCommand("call s:openErrorFile(".l:targetIndex.")", l:c, "Open stderr")
 	call add(s:commandQueue, l:cmd)
 	return l:cmd.index
 endfunction
@@ -322,11 +320,31 @@ function! s:openCommand()
 	call s:openTarget(line("."))	
 endfunction
 
+function! s:runAgain()
+	if (bufnr("%") != bufnr('Async History'))
+		echoerr "You cannot do this outside of the AQ History Buffer"
+		return
+	endif
+
+	let l:t = s:getTerminated(line("."))	
+	
+	let l:c	= l:t.command
+
+	if (l:t.external)
+		let l:c	= "!" . l:c
+	endif
+	
+
+	call AQAppend(l:c)
+
+endfunction
+
 command! -nargs=0 AQHistory call s:showHistory(0)
 command! -nargs=0 AQInternalHistory call s:showHistory(1)
 command! -nargs=0 AQClean call AQClean()
 command! -nargs=0 AQKill call AQKillJob()
 command! -nargs=0 AQOpenError call s:openErrorCommand()
 command! -nargs=0 AQOpen call s:openCommand()
+command! -nargs=0 AQRunAgain call s:runAgain()
 
 call AQClean()
