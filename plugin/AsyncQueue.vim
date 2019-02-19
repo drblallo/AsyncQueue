@@ -333,10 +333,29 @@ function! s:runAgain()
 	if (l:t.external)
 		let l:c	= "!" . l:c
 	endif
-	
 
 	call AQAppend(l:c)
+endfunction
 
+function! s:runInTerm()
+	if (!has('terminal'))
+		echoerr "This command requires to be compiled with term"
+		return
+	endif
+
+	if (bufnr("%") != bufnr('Async History'))
+		echoerr "You cannot do this outside of the AQ History Buffer"
+		return
+	endif
+
+	let l:t = s:getTerminated(line("."))	
+	let l:c	= l:t.command
+
+	if (!l:t.external)
+		return
+	endif
+
+	execute "term " . l:c
 endfunction
 
 command! -nargs=0 AQHistory call s:showHistory(0)
@@ -346,5 +365,6 @@ command! -nargs=0 AQKill call AQKillJob()
 command! -nargs=0 AQOpenError call s:openErrorCommand()
 command! -nargs=0 AQOpen call s:openCommand()
 command! -nargs=0 AQRunAgain call s:runAgain()
+command! -nargs=0 AQRunInTerm call s:runInTerm()
 
 call AQClean()

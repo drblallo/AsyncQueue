@@ -20,6 +20,7 @@ AQOpenCmd	AsyncQueue.txt	/*AQOpenCmd*
 AQOpenErrorCmd	AsyncQueue.txt	/*AQOpenErrorCmd*
 AQOptions	AsyncQueue.txt	/*AQOptions*
 AQRunAgainCmd	AsyncQueue.txt	/*AQRunAgainCmd*
+AQRunInTermCmd	AsyncQueue.txt	/*AQRunInTermCmd*
 AQTermJob	AsyncQueue.txt	/*AQTermJob*
 AQWasCompleated	AsyncQueue.txt	/*AQWasCompleated*
 AQWasSuccesfull	AsyncQueue.txt	/*AQWasSuccesfull*

@@ -24,7 +24,7 @@ function! CompileAndRun()
 	call AQAppendOpenError(0, l:index)
 
 	"run tests if the first command has succeded, abort otherwise
-	l:index = AQAppendCond("!./build/bin/test", 1, l:index)
+	let l:index = AQAppendCond("!./build/bin/test", 1, l:index)
 
 	"open output if previous operation was not aborted
 	call AQAppendOpen(1, l:index)
@@ -62,6 +62,18 @@ Opens the stdout of the compleated background task under the cursor
 AQOpenError
 ```
 Open the stderr of the compleated background task under the cursor
+
+```vim
+AQRunAgain
+```
+Run the command under the cursor again, you must be in the history page
+
+```vim
+AQRunInTerm
+```
+Run the command under the cursor again, you must be in the history page.
+The output is sent to a new window. Vim must be compiled with the terminal flag.
+
 
 ## Usefull Functions
 All commands description can be visited by invoking `:help AQFunctions`

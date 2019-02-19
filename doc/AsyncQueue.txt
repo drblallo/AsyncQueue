@@ -27,6 +27,7 @@ CONTENTS                                                    *AsynQueueContent*
     4.5.AQOpen............................................|AQOpenCmd|
     4.6.AQOpenError.......................................|AQOpenErrorCmd|
     4.6.AQRunAgain........................................|AQRunAgainCmd|
+    4.6.AQRunInTerm.......................................|AQRunInTermCmd|
   5.Options...............................................|AQOptions|
     5.1.Highligts.........................................|AQHighlights|
   6.About.................................................|AQAbout|
@@ -209,6 +210,14 @@ CONTENTS                                                    *AsynQueueContent*
   Can be used on failed and aborted commands. It equivalent to call
   |AQAppend| with the command under the cursor. Conditions regarding
   that command are ignored.
+
+------------------------------------------------------------------------------
+
+4.7.AQRunInTerm                                               *AQRunInTermCmd*
+
+  Run the command under the cursor again and puts the output of the
+  command in a special window. It is equivalent to call "term <command>".
+  Requires to be compiled with |terminal|.
 
 ==============================================================================
 5. Options                                                         *AQOptions*
